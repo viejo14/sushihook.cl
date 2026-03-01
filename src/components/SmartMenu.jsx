@@ -112,15 +112,6 @@ export const SmartMenu = () => {
 
   return (
     <section id="menu" className="py-24 bg-[#050505] px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto relative">
-      {/* Imagen principal del menú */}
-      <div className="w-full flex justify-center mb-12">
-        <img 
-          src="https://www.tasteatlas.com/images/dishes/3b1e8235dde748ec975e8514857876b2.jpg" 
-          alt="Menú SushiHook" 
-          className="rounded-2xl shadow-xl max-h-80 object-cover border-4 border-zinc-900"
-        />
-      </div>
-
       <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
         <div>
           <h2 className="text-4xl font-light text-zinc-100 tracking-tight mb-4">
