@@ -6,4 +6,17 @@
   html {
     scroll-behavior: smooth;
   }
+
+  body.modal-open {
+    overflow: hidden;
+  }
+
+  body.modal-open .global-sticky-menu-cta,
+  body.modal-open .global-whatsapp-fab,
+  body.modal-open .global-floating-cart-fab {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(140%);
+    transition: transform 220ms ease, opacity 220ms ease;
+  }
 }

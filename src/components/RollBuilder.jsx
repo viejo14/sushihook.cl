@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Settings2 } from 'lucide-react';
+import { useCart } from '../context/CartContext';
 
 const BUILDER_OPTIONS = {
   bases: [
@@ -128,11 +129,25 @@ const VisualRoll = ({ selections }) => {
 };
 
 export const RollBuilder = () => {
+  const DRINK_PRICE = 1500;
+  const SAUCE_OPTIONS = ['Agridulce', 'Soya', 'Mixta'];
+  const DRINK_OPTIONS = [
+    { id: 'cocacola-original', name: 'Coca-Cola', image: '/images/imges-menu/cocacola-original.jpeg' },
+    { id: 'fanta', name: 'Fanta', image: '/images/imges-menu/FANTA-350CC-LATA.jpg' },
+    { id: 'pepsi', name: 'Pepsi', image: '/images/imges-menu/pepsi.jpeg' },
+    { id: 'sprite', name: 'Sprite', image: '/images/imges-menu/sprite.jpeg' }
+  ];
+  const createEmptyDrinkSelection = () =>
+    DRINK_OPTIONS.reduce((acc, drink) => ({ ...acc, [drink.id]: 0 }), {});
+
+  const { addToCart } = useCart();
   const [selections, setSelections] = useState({
     base: null,
     protein: null,
     toppings: []
   });
+  const [builderSauce, setBuilderSauce] = useState('Agridulce');
+  const [builderDrinkSelection, setBuilderDrinkSelection] = useState(createEmptyDrinkSelection());
 
   const toggleTopping = (topping) => {
     setSelections(prev => {
@@ -154,6 +169,44 @@ export const RollBuilder = () => {
   }, [selections]);
 
   const isComplete = selections.base && selections.protein;
+  const totalBuilderDrinks = Object.values(builderDrinkSelection).reduce((sum, count) => sum + count, 0);
+  const totalBuilderPrice = totalPrice + (totalBuilderDrinks * DRINK_PRICE);
+  const selectedBuilderDrinkEntries = DRINK_OPTIONS
+    .map(drink => ({ ...drink, qty: builderDrinkSelection[drink.id] || 0 }))
+    .filter(drink => drink.qty > 0);
+  const builderDrinksSummary = selectedBuilderDrinkEntries.length
+    ? selectedBuilderDrinkEntries.map(drink => `${drink.name} x${drink.qty}`).join(', ')
+    : 'Sin bebida';
+
+  const handleAddCustomRoll = () => {
+    if (!isComplete) return;
+
+    const toppingsLabel = selections.toppings.length
+      ? selections.toppings.map(t => t.name).join(', ')
+      : 'Sin toppings';
+    const drinkExtraPrice = totalBuilderDrinks * DRINK_PRICE;
+
+    const cartItemId = `builder::${selections.base.id}::${selections.protein.id}::${selections.toppings.map(t => t.id).sort().join('-') || 'none'}::salsa:${builderSauce.toLowerCase()}::bebidas:${selectedBuilderDrinkEntries.map(drink => `${drink.id}:${drink.qty}`).join('|') || 'none'}`;
+
+    addToCart(
+      {
+        cartItemId,
+        id: 200000,
+        name: 'Roll Personalizado',
+        price: totalPrice,
+        extraPrice: drinkExtraPrice,
+        image: '/images/imges-menu/hand-roll.jpg',
+        selectedOptions: [
+          `Base: ${selections.base.name}`,
+          `Proteina: ${selections.protein.name}`,
+          `Toppings: ${toppingsLabel}`,
+          `Salsa: ${builderSauce}`,
+          `Bebidas: ${builderDrinksSummary}${totalBuilderDrinks > 0 ? ` (+$${drinkExtraPrice.toLocaleString('es-CL')})` : ''}`
+        ]
+      },
+      1
+    );
+  };
 
   return (
     <section id="builder" className="py-24 bg-zinc-950 border-y border-zinc-900 border-dashed">
@@ -230,6 +283,88 @@ export const RollBuilder = () => {
                 })}
               </div>
             </div>
+
+            {/* Salsa y bebidas */}
+            <div>
+              <h3 className="text-xl text-zinc-200 mb-6 font-light border-b border-zinc-800 pb-2">
+                4. Salsa y Bebidas
+              </h3>
+              <div className="grid grid-cols-1 gap-4">
+                <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+                  <p className="text-xs text-zinc-400 mb-3 text-center uppercase tracking-wide">Tipo de salsa</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {SAUCE_OPTIONS.map((sauceOption) => (
+                      <button
+                        key={sauceOption}
+                        onClick={() => setBuilderSauce(sauceOption)}
+                        className={`px-3 py-2 rounded-lg text-xs font-medium border transition-colors ${
+                          builderSauce === sauceOption
+                            ? 'bg-amber-400 text-zinc-950 border-amber-300'
+                            : 'bg-zinc-900 text-zinc-300 border-zinc-700 hover:border-zinc-500'
+                        }`}
+                      >
+                        {sauceOption}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+                  <p className="text-xs text-zinc-400 mb-3 text-center uppercase tracking-wide">Bebidas</p>
+                  <div className="text-center text-sm text-zinc-300 bg-[#050505] p-2 rounded-xl border border-zinc-800">
+                    {totalBuilderDrinks > 0 ? `${totalBuilderDrinks} bebida(s) seleccionada(s)` : 'Sin bebida'}
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3">
+                    {DRINK_OPTIONS.map((drink) => {
+                      const drinkCount = builderDrinkSelection[drink.id] || 0;
+                      const isSelected = drinkCount > 0;
+                      return (
+                        <div
+                          key={drink.id}
+                          className={`rounded-lg border p-2 transition-colors ${
+                            isSelected
+                              ? 'border-amber-500 bg-amber-500/10'
+                              : 'border-zinc-700 bg-zinc-900 hover:border-zinc-500'
+                          }`}
+                        >
+                          <div className="h-10 w-full rounded-md overflow-hidden mb-1 bg-zinc-800">
+                            <img src={drink.image} alt={drink.name} className="w-full h-full object-cover" />
+                          </div>
+                          <span className="text-xs text-zinc-200 block mb-1">{drink.name}</span>
+                          <div className="flex items-center justify-center gap-2">
+                            <button
+                              onClick={() =>
+                                setBuilderDrinkSelection(prev => ({
+                                  ...prev,
+                                  [drink.id]: Math.max(0, (prev[drink.id] || 0) - 1)
+                                }))
+                              }
+                              className="w-6 h-6 rounded-full bg-zinc-800 text-zinc-300 flex items-center justify-center hover:bg-zinc-700 hover:text-white transition-colors disabled:opacity-50"
+                              disabled={drinkCount <= 0}
+                            >
+                              -
+                            </button>
+                            <span className="w-5 text-center text-sm font-medium text-white">{drinkCount}</span>
+                            <button
+                              onClick={() =>
+                                setBuilderDrinkSelection(prev => ({
+                                  ...prev,
+                                  [drink.id]: (prev[drink.id] || 0) + 1
+                                }))
+                              }
+                              className="w-6 h-6 rounded-full bg-zinc-800 text-zinc-300 flex items-center justify-center hover:bg-zinc-700 hover:text-white transition-colors"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <p className="text-xs text-zinc-500 mt-2 text-center">Cada bebida suma $1.500</p>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Resumen & Visualizador */}
@@ -259,11 +394,23 @@ export const RollBuilder = () => {
 
             <div className="border-t border-zinc-800 pt-6 mb-8 flex justify-between items-end max-w-xs mx-auto">
               <span className="text-zinc-500">Total estimado</span>
-              <span className="text-3xl font-bold text-amber-400">${totalPrice.toLocaleString('es-CL')}</span>
+              <span className="text-3xl font-bold text-amber-400">${totalBuilderPrice.toLocaleString('es-CL')}</span>
+            </div>
+
+            <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4 mb-8 max-w-xs mx-auto">
+              <div className="flex justify-between items-center text-sm text-zinc-300 mb-2">
+                <span>Salsa</span>
+                <span className="font-medium text-amber-400">{builderSauce}</span>
+              </div>
+              <div className="flex justify-between items-center text-sm text-zinc-300">
+                <span>Bebidas</span>
+                <span className="font-medium">{builderDrinksSummary}</span>
+              </div>
             </div>
 
             <button 
               disabled={!isComplete}
+              onClick={handleAddCustomRoll}
               className={`w-full py-4 rounded-xl font-medium tracking-widest uppercase transition-all ${isComplete ? 'bg-amber-400 hover:bg-amber-500 text-zinc-950' : 'bg-zinc-900 text-zinc-600 cursor-not-allowed'}`}
             >
               Añadir a la orden

@@ -2,12 +2,15 @@ import React from 'react';
 import { Instagram } from 'lucide-react';
 
 const SOCIAL_POSTS = [
-  "https://images.unsplash.com/photo-1553621042-f6e147245754?q=80&w=400&auto=format&fit=crop", // 0
-  "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?q=80&w=400&auto=format&fit=crop", // 1
-  "https://images.unsplash.com/photo-1583623025817-d180a2221d0a?q=80&w=400&auto=format&fit=crop", // 2
-  "https://images.unsplash.com/photo-1615361200141-f45040f367be?q=80&w=400&auto=format&fit=crop", // 3
-  "/images/sushiburger.png", // 4
-  "/images/hallroll.webp", // 5
+  "/images/images-social/social-sushi.webp",
+  "/images/images-social/social-sushi2.jpg",
+  "/images/images-social/sosial-sushi3.avif",
+  "/images/images-social/social-sushi4.jpg",
+  "/images/images-social/social-sushi5.webp",
+  "/images/images-social/social-sishi6.jpeg",
+  "/images/images-social/social-sushi7.jpg",
+  "/images/images-social/social-sushi8.jpeg",
+  "/images/images-social/Tips-comer-sushi.jpg",
 ];
 
 export const SocialProof = () => {

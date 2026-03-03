@@ -24,7 +24,7 @@ export const FloatingCart = () => {
     cartItems.forEach(item => {
       message += `• ${item.quantity}x ${item.name} ` + 
         `${item.selectedOptions ? `(${item.selectedOptions.join(', ')}) ` : ''}` +
-        `$${(item.price * item.quantity).toLocaleString('es-CL')}\n`;
+        `$${((item.price * item.quantity) + (item.extraPrice || 0)).toLocaleString('es-CL')}\n`;
     });
     message += `\n*Total: $${cartTotal.toLocaleString('es-CL')}*\n\nGracias!`;
 
@@ -40,7 +40,7 @@ export const FloatingCart = () => {
 
   return (
     <>
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end pointer-events-none">
+      <div className="global-floating-cart-fab fixed bottom-6 right-4 md:right-6 z-50 flex flex-col items-end pointer-events-none">
         {/* Floating Bubble Trigger */}
         <AnimatePresence>
           {cartCount > 0 && !isCartOpen && (
@@ -149,7 +149,7 @@ export const FloatingCart = () => {
                 ) : (
                   cartItems.map((item) => (
                     <motion.div
-                      key={item.id}
+                      key={item.cartItemId || item.id}
                       layout
                       initial={{ opacity: 0, y: 20, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -169,14 +169,14 @@ export const FloatingCart = () => {
                               {item.name}
                             </h3>
                             <button
-                              onClick={() => removeFromCart(item.id)}
+                              onClick={() => removeFromCart(item.cartItemId || item.id)}
                               className="text-zinc-500 hover:text-red-400 transition-colors p-1"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
                           {item.selectedOptions && (
-                            <p className="text-xs text-zinc-500 mt-1 line-clamp-1">
+                            <p className="text-xs text-zinc-500 mt-1 line-clamp-2">
                               {item.selectedOptions.join(', ')}
                             </p>
                           )}
@@ -186,7 +186,7 @@ export const FloatingCart = () => {
                         <div className="flex items-center justify-between mt-3">
                           <div className="flex items-center gap-3 bg-black py-1 px-2 rounded-lg border border-zinc-800">
                             <button
-                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                              onClick={() => updateQuantity(item.cartItemId || item.id, item.quantity - 1)}
                               className="w-6 h-6 flex items-center justify-center rounded-md bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800"
                             >
                               <Minus className="w-3 h-3" />
@@ -195,14 +195,14 @@ export const FloatingCart = () => {
                               {item.quantity}
                             </span>
                             <button
-                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              onClick={() => updateQuantity(item.cartItemId || item.id, item.quantity + 1)}
                               className="w-6 h-6 flex items-center justify-center rounded-md bg-zinc-900 text-zinc-400 hover:text-white hover:bg-zinc-800"
                             >
                               <Plus className="w-3 h-3" />
                             </button>
                           </div>
                           <div className="font-medium text-amber-400">
-                            ${(item.price * item.quantity).toLocaleString('es-CL')}
+                            ${((item.price * item.quantity) + (item.extraPrice || 0)).toLocaleString('es-CL')}
                           </div>
                         </div>
                       </div>

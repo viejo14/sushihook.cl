@@ -23,7 +23,7 @@ export const WhatsAppButton = ({ phoneNumber = "+56988126316", message = "Hola v
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.9 }}
       onClick={handleWhatsAppClick}
-      className="fixed bottom-6 left-6 z-40 group flex items-center justify-center w-14 h-14 bg-[#25D366] hover:bg-[#128C7E] text-white rounded-full shadow-[0_0_20px_rgba(37,211,102,0.4)] transition-colors overflow-hidden"
+      className="global-whatsapp-fab fixed bottom-[5.5rem] md:bottom-6 left-4 md:left-6 z-40 group flex items-center justify-center w-14 h-14 bg-[#25D366] hover:bg-[#128C7E] text-white rounded-full shadow-[0_0_20px_rgba(37,211,102,0.4)] transition-colors overflow-hidden"
       aria-label="Contactar por WhatsApp"
     >
       <MessageCircle strokeWidth={2} className="w-7 h-7 relative z-10" />

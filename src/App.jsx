@@ -81,7 +81,7 @@ function App() {
             {/* Sticky CTA (Solo visible en móviles después de bajar del Hero) */}
             {!cartCount && (
               <div 
-                className={`md:hidden fixed bottom-0 left-0 right-0 p-4 z-40 transition-transform duration-500 bg-gradient-to-t from-[#050505] via-[#050505] to-transparent ${showSticky ? 'translate-y-0' : 'translate-y-[150%]'}`}
+                className={`global-sticky-menu-cta md:hidden fixed bottom-0 left-0 right-0 p-4 z-40 transition-transform duration-500 bg-gradient-to-t from-[#050505] via-[#050505] to-transparent ${showSticky ? 'translate-y-0' : 'translate-y-[150%]'}`}
               >
                 <button 
                   onClick={() => {

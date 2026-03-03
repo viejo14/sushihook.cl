@@ -16,11 +16,16 @@ export const CartProvider = ({ children }) => {
 
   const addToCart = (item, quantity = 1) => {
     setCartItems(prevItems => {
-      const existingItem = prevItems.find(i => i.id === item.id);
+      const itemKey = item.cartItemId || item.id;
+      const existingItem = prevItems.find(i => (i.cartItemId || i.id) === itemKey);
       if (existingItem) {
         return prevItems.map(i => 
-          i.id === item.id 
-            ? { ...i, quantity: i.quantity + quantity }
+          (i.cartItemId || i.id) === itemKey
+            ? {
+                ...i,
+                quantity: i.quantity + quantity,
+                extraPrice: (i.extraPrice || 0) + (item.extraPrice || 0)
+              }
             : i
         );
       }
@@ -30,18 +35,20 @@ export const CartProvider = ({ children }) => {
     setIsCartOpen(true);
   };
 
-  const removeFromCart = (itemId) => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== itemId));
+  const removeFromCart = (itemKey) => {
+    setCartItems(prevItems =>
+      prevItems.filter(item => (item.cartItemId || item.id) !== itemKey)
+    );
   };
 
-  const updateQuantity = (itemId, newQuantity) => {
+  const updateQuantity = (itemKey, newQuantity) => {
     if (newQuantity < 1) {
-      removeFromCart(itemId);
+      removeFromCart(itemKey);
       return;
     }
     setCartItems(prevItems => 
       prevItems.map(item => 
-        item.id === itemId 
+        (item.cartItemId || item.id) === itemKey
           ? { ...item, quantity: newQuantity }
           : item
       )
@@ -53,7 +60,10 @@ export const CartProvider = ({ children }) => {
   const toggleCart = () => setIsCartOpen(!isCartOpen);
 
   const cartTotal = useMemo(() => {
-    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+    return cartItems.reduce(
+      (total, item) => total + (item.price * item.quantity) + (item.extraPrice || 0),
+      0
+    );
   }, [cartItems]);
 
   const cartCount = useMemo(() => {
